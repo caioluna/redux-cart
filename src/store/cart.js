@@ -1,22 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialCartState = {
-  products: [
-    // {
-    //   id: 1,
-    //   title: "The 7th Voyage of Sinbad",
-    //   price: 7.99,
-    //   description: "The 7th Voyage of Sinbad is a 1958 fantasy film directed by Nathan Juran and starring Kerwin Mathews, Kathryn Grant, Torin Thatcher, and Richard Eyer.",
-    //   quantity: 3
-    // },
-    // {
-    //   id: 2,
-    //   title: "The princess and the frog",
-    //   price: 9.67,
-    //   description: "The Princess and the Frog is a 2009 American animated musical fantasy film produced by Walt Disney Animation Studios and released by Walt Disney Pictures.",
-    //   quantity: 2
-    // },
-  ],
+  products: [],
+  totalQuantity: 0,
 }
 
 const cartSlice = createSlice({
@@ -24,7 +10,36 @@ const cartSlice = createSlice({
   initialState: initialCartState,
   reducers: {
     addItemToCart(state, action) {
-      state.products.push({ ...action.payload, quantity: 1 })
+      const product = action.payload
+      const productInCart = state.products.find(item => item.id === product.id)
+      state.totalQuantity++
+
+      if (!productInCart) {
+        state.products.push({
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          descriptions: product.description,
+          quantity: 1,
+          totalPrice: product.price
+        })
+      } else {
+        productInCart.quantity++
+        productInCart.totalPrice = productInCart.price * productInCart.quantity
+      }
+    },
+
+    removeItemFromCart(state, action) {
+      const id = action.payload
+      const currentProduct = state.products.find(item => item.id === id)
+      state.totalQuantity--
+
+      if (currentProduct.quantity === 1) {
+        state.products = state.products.filter(item => item.id !== id)
+      } else {
+        currentProduct.quantity--
+        currentProduct.totalPrice = currentProduct.totalPrice - currentProduct.price
+      }
     }
   },
 })
